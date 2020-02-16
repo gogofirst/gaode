@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">      
+    <title>自定义图层</title>
+	<link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <style>
+        html,body,#container {
+          width: 100%;
+          height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script src="https://webapi.amap.com/maps?v=1.4.15&key=74952b2d38eaaea3aedd2bc2c530f707"></script>
+<script type="text/javascript">
+	var map = new AMap.Map('container', {
+        center: [116.306206, 39.975468],
+        zooms: [10, 25],
+		zoom:3
+	});
+	
+
+	function addLayer(positions){
+	    AMap.plugin('AMap.CustomLayer', function() {
+	        var canvas = document.createElement('canvas');
+	        var customLayer = new AMap.CustomLayer(canvas, {
+                zooms: [3, 18],
+                alwaysRender:true,//缩放过程中是否重绘，复杂绘制建议设为false
+				zIndex: 120
+			});
+			var onRender = function(){
+			    var retina = AMap.Browser.retina;
+                var size = map.getSize();//resize
+                var width = size.width;
+                var height = size.height;
+                canvas.style.width = width+'px'
+                canvas.style.height = height+'px'
+                if(retina){//高清适配
+                    width*=2;
+                    height*=2;
+                }
+                canvas.width = width;
+                canvas.height = height;//清除画布
+			    var ctx = canvas.getContext("2d");
+        		ctx.fillStyle = '#08f';
+        		ctx.strokeStyle = '#fff';
+        		ctx.beginPath();
+			        var center =  {P:  40.08717, Q: 116.37444 , lng: 116.37444 , lat:  40.08717};
+              console.log(center);
+        			var pos = map.lngLatToContainer(center);
+        			var r = 8;
+        			if(retina){
+        			    pos = pos.multiplyBy(2);
+        			    r*=20
+        			}
+        			ctx.moveTo(pos.x+r, pos.y)
+        		    ctx.arc(pos.x, pos.y, r, 0, 2*Math.PI);
+        		ctx.lineWidth = retina?6:3
+        		ctx.closePath();
+        		ctx.stroke();
+        		ctx.fill();
+			}
+			customLayer.render = onRender;
+			customLayer.setMap(map);
+	    });
+	}
+  addLayer();
+	
+</script>
+</body>  
+</html>
